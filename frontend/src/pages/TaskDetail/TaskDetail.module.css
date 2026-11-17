@@ -1,0 +1,288 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 1200px;
+}
+
+.loading {
+  display: grid;
+  place-items: center;
+  min-height: 320px;
+}
+
+.crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  list-style: none;
+  color: var(--color-text-subtle);
+}
+
+.crumbs li + li::before {
+  content: "/";
+  margin-right: 6px;
+  color: var(--color-text-subtle);
+}
+
+.crumbs a {
+  color: var(--color-text-subtle);
+}
+
+.crumbs a:hover {
+  color: var(--color-text);
+  text-decoration: underline;
+}
+
+.crumbProject {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.crumbKey {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 32px;
+  align-items: start;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 32px;
+  overflow-wrap: anywhere;
+}
+
+.titleButton,
+.descriptionButton {
+  display: block;
+  width: 100%;
+  margin: 0 -8px;
+  padding: 2px 8px;
+  font: inherit;
+  text-align: left;
+  color: inherit;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: text;
+}
+
+.titleButton:hover,
+.descriptionButton:hover {
+  background: var(--color-hover);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sectionTitle,
+.detailsTitle {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.descriptionButton {
+  min-height: 40px;
+  padding: 8px;
+}
+
+.description {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.inlineForm {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.inlineActions {
+  display: flex;
+  gap: 8px;
+}
+
+.hiddenLabel > :first-child {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: sticky;
+  top: 16px;
+}
+
+.sideTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.statusSelect {
+  width: 180px;
+}
+
+.statusSelect select {
+  height: 36px;
+  font-weight: 600;
+  color: var(--color-on-primary);
+  background: var(--color-primary);
+  border-color: transparent;
+}
+
+.statusSelect select:hover:not(:disabled):not(:focus) {
+  background: var(--color-primary-hover);
+}
+
+.statusSelect svg {
+  color: var(--color-on-primary);
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.detailsTitle {
+  margin-bottom: 8px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  min-height: 40px;
+}
+
+.rowLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-subtle);
+}
+
+.rowValue {
+  min-width: 0;
+  font-size: 14px;
+}
+
+/* inline pickers carry their own (visually redundant) labels */
+.rowValue > div > label:first-child {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.dueField {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dueField > :first-child {
+  flex: 1;
+}
+
+.dates {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0 4px;
+  font-size: 12px;
+  color: var(--color-text-subtle);
+}
+
+.dates div {
+  display: flex;
+  gap: 6px;
+}
+
+.dates dd {
+  margin: 0;
+}
+
+.muted {
+  margin: 0;
+  color: var(--color-text-subtle);
+}
+
+.inlineLink {
+  padding: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-primary);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.inlineLink:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .side {
+    position: static;
+  }
+}

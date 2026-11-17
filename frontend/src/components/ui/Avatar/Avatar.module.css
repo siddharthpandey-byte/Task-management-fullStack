@@ -1,0 +1,33 @@
+.avatar {
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 50%;
+  color: #fff;
+  font-weight: 600;
+  background: linear-gradient(135deg, var(--color-brand-from), var(--color-brand-to));
+  user-select: none;
+}
+
+.xs {
+  width: 20px;
+  height: 20px;
+  font-size: 9px;
+}
+
+.sm {
+  width: 24px;
+  height: 24px;
+  font-size: 10px;
+}
+
+.md {
+  width: 32px;
+  height: 32px;
+  font-size: 12px;
+}
+
+.inactive {
+  filter: grayscale(1);
+  opacity: 0.6;
+}

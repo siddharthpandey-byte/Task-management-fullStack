@@ -1,0 +1,35 @@
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 4px;
+  color: var(--color-text-subtle);
+  background: var(--color-neutral-button);
+  border-radius: 50%;
+}
+
+.title {
+  font-size: 16px;
+  line-height: 20px;
+}
+
+.text {
+  max-width: 420px;
+  color: var(--color-text-subtle);
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}

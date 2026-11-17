@@ -1,16 +1,26 @@
 import { Link } from "react-router";
 import { Can } from "../../components/auth/Can";
 import { APP_NAME } from "../../components/Logo";
-import { Button } from "../../components/ui/Button";
+import {
+  DueDate,
+  PriorityIcon,
+  StatusLozenge,
+  TaskTypeIcon,
+} from "../../components/tasks/TaskMeta";
+import { Alert } from "../../components/ui/Alert";
+import { buttonClass } from "../../components/ui/Button/buttonClass";
 import { Card } from "../../components/ui/Card";
 import { Icon, type IconName } from "../../components/ui/Icon";
-import { Lozenge, type LozengeAppearance } from "../../components/ui/Lozenge";
+import { Lozenge } from "../../components/ui/Lozenge";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { RoleBadge } from "../../components/ui/RoleBadge";
 import { ROLES } from "../../constants/auth.constant";
-import { ROUTES } from "../../constants/route.constant";
+import { ROUTES, taskPath } from "../../constants/route.constant";
+import { TASK_STATUS_APPEARANCE, TASK_STATUS_LABELS } from "../../constants/task.constant";
 import { useAuth } from "../../hooks/useAuth";
+import { useDashboard } from "../../hooks/useDashboard";
 import type { Role } from "../../types/auth.types";
+import type { DashboardStats, DashboardTask } from "../../types/dashboard.types";
 import { getFirstName, getInitials } from "../../utils/user.helper";
 import styles from "./Dashboard.module.css";
 
@@ -24,17 +34,45 @@ const PERMISSIONS: Record<Role, string[]> = {
   ],
 };
 
-const STATS: { label: string; value: number; icon: IconName; tone: string }[] = [
-  { label: "Assigned to me", value: 0, icon: "task", tone: styles.toneBlue },
-  { label: "In progress", value: 0, icon: "clock", tone: styles.tonePurple },
-  { label: "Done this week", value: 0, icon: "checkCircle", tone: styles.toneGreen },
+// each tile opens the matching filtered task list
+const STATS: {
+  key: keyof DashboardStats;
+  label: string;
+  icon: IconName;
+  tone: string;
+  to: string;
+}[] = [
+  {
+    key: "assigned",
+    label: "Assigned to me",
+    icon: "task",
+    tone: styles.toneBlue,
+    to: `${ROUTES.TASKS}?assignee=me&status=todo%2Cin_progress%2Cin_review`,
+  },
+  {
+    key: "inProgress",
+    label: "In progress",
+    icon: "clock",
+    tone: styles.tonePurple,
+    to: `${ROUTES.TASKS}?assignee=me&status=in_progress`,
+  },
+  {
+    key: "overdue",
+    label: "Overdue",
+    icon: "error",
+    tone: styles.toneRed,
+    to: `${ROUTES.TASKS}?assignee=me&due=overdue`,
+  },
+  {
+    key: "doneThisWeek",
+    label: "Done in the last 7 days",
+    icon: "checkCircle",
+    tone: styles.toneGreen,
+    to: `${ROUTES.TASKS}?assignee=me&status=done`,
+  },
 ];
 
-const BOARD_COLUMNS: { title: string; appearance: LozengeAppearance }[] = [
-  { title: "To do", appearance: "default" },
-  { title: "In progress", appearance: "inprogress" },
-  { title: "Done", appearance: "success" },
-];
+const MY_OPEN_WORK = STATS[0].to;
 
 const greeting = (date = new Date()) => {
   const hour = date.getHours();
@@ -52,7 +90,12 @@ const formatDate = (iso: string) => {
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const { data, loading, error, reload } = useDashboard();
   if (!user) return null;
+
+  const firstLoad = loading && !data;
+  const assigned = data?.assigned;
+  const board = data?.board;
 
   return (
     <div className={styles.page}>
@@ -64,57 +107,157 @@ export default function DashboardPage() {
         description="Here's what's happening across your workspace."
         actions={
           <Can roles={[ROLES.ADMIN, ROLES.MANAGER]}>
-            <Button disabled title="Coming soon" iconBefore={<Icon name="plus" size={16} />}>
+            <Link to={`${ROUTES.PROJECTS}?create=1`} className={buttonClass()}>
+              <Icon name="plus" size={16} />
               New project
-            </Button>
+            </Link>
           </Can>
         }
       />
 
-      <section className={styles.stats} aria-label="Task summary">
-        {STATS.map((stat) => (
-          <div key={stat.label} className={styles.stat}>
-            <span className={`${styles.statIcon} ${stat.tone}`}>
-              <Icon name={stat.icon} size={20} />
-            </span>
-            <div className={styles.statText}>
-              <span className={styles.statValue}>{stat.value}</span>
-              <span className={styles.statLabel}>{stat.label}</span>
-            </div>
-          </div>
-        ))}
+      {error && (
+        <Alert variant="error" title="Couldn't load your dashboard">
+          {error.message}{" "}
+          <button type="button" className={styles.inlineLink} onClick={reload}>
+            Try again
+          </button>
+        </Alert>
+      )}
+
+      <section
+        className={styles.stats}
+        aria-label="Task summary"
+        aria-busy={firstLoad || undefined}
+      >
+        {STATS.map((stat) => {
+          const value = data?.stats[stat.key];
+          return (
+            <Link key={stat.key} to={stat.to} className={styles.stat}>
+              <span className={`${styles.statIcon} ${stat.tone}`}>
+                <Icon name={stat.icon} size={20} />
+              </span>
+              <span className={styles.statText}>
+                <span
+                  className={`${styles.statValue} ${
+                    stat.key === "overdue" && value ? styles.statDanger : ""
+                  }`}
+                >
+                  {value ?? (firstLoad ? <span className={styles.skeletonValue} /> : "—")}
+                </span>
+                <span className={styles.statLabel}>{stat.label}</span>
+              </span>
+            </Link>
+          );
+        })}
       </section>
 
       <div className={styles.grid}>
         <div className={styles.mainCol}>
-          <Card title="Assigned to me" meta={<Lozenge>0</Lozenge>} flush>
+          <Card
+            title="Assigned to me"
+            meta={<Lozenge>{assigned?.total ?? 0}</Lozenge>}
+            actions={
+              assigned && assigned.total > 0 ? (
+                <Link to={MY_OPEN_WORK} className={styles.cardLink}>
+                  View all
+                </Link>
+              ) : undefined
+            }
+            flush
+          >
             <div className={styles.tableHead} aria-hidden="true">
               <span>Summary</span>
               <span>Status</span>
               <span>Priority</span>
               <span>Due</span>
             </div>
-            <EmptyState
-              title="You have no assigned work"
-              text="Issues assigned to you will show up here, sorted by priority."
-            />
+            {firstLoad ? (
+              <ul className={styles.rows} aria-hidden="true">
+                {Array.from({ length: 3 }, (_, i) => (
+                  <li key={i} className={styles.row}>
+                    <span className={styles.skeleton} />
+                    <span className={styles.skeleton} />
+                    <span className={styles.skeleton} />
+                    <span className={styles.skeleton} />
+                  </li>
+                ))}
+              </ul>
+            ) : assigned && assigned.tasks.length > 0 ? (
+              <>
+                <ul className={styles.rows} aria-label="Open tasks assigned to you">
+                  {assigned.tasks.map((task) => (
+                    <AssignedRow key={task.id} task={task} />
+                  ))}
+                </ul>
+                {assigned.total > assigned.tasks.length && (
+                  <Link to={MY_OPEN_WORK} className={styles.moreLink}>
+                    View all {assigned.total} assigned tasks
+                    <Icon name="arrowRight" size={14} />
+                  </Link>
+                )}
+              </>
+            ) : (
+              <EmptyState
+                title="You have no assigned work"
+                text="Issues assigned to you will show up here, sorted by priority."
+              />
+            )}
           </Card>
 
           <Card
             title="Board overview"
-            meta={<span className={styles.metaText}>All projects</span>}
+            meta={
+              <span className={styles.metaText}>
+                {board
+                  ? `${board.projectCount} active project${board.projectCount === 1 ? "" : "s"}`
+                  : "All projects"}
+              </span>
+            }
+            actions={
+              <Link to={ROUTES.TASKS} className={styles.cardLink}>
+                All tasks
+              </Link>
+            }
             flush
           >
             <div className={styles.board} role="list" aria-label="Board columns">
-              {BOARD_COLUMNS.map((column) => (
-                <div key={column.title} className={styles.column} role="listitem">
+              {(board?.columns ?? []).map((column) => (
+                <div key={column.status} className={styles.column} role="listitem">
                   <div className={styles.columnHeader}>
-                    <Lozenge appearance={column.appearance}>{column.title}</Lozenge>
-                    <span className={styles.columnCount}>0</span>
+                    <Lozenge appearance={TASK_STATUS_APPEARANCE[column.status]}>
+                      {TASK_STATUS_LABELS[column.status]}
+                    </Lozenge>
+                    <span className={styles.columnCount}>{column.count}</span>
                   </div>
-                  <div className={styles.columnEmpty}>No issues</div>
+                  {column.tasks.length === 0 ? (
+                    <div className={styles.columnEmpty}>No issues</div>
+                  ) : (
+                    <ul className={styles.cards}>
+                      {column.tasks.map((task) => (
+                        <li key={task.id}>
+                          <BoardCard task={task} />
+                        </li>
+                      ))}
+                      {column.count > column.tasks.length && (
+                        <li>
+                          <Link
+                            to={`${ROUTES.TASKS}?status=${column.status}`}
+                            className={styles.columnMore}
+                          >
+                            +{column.count - column.tasks.length} more
+                          </Link>
+                        </li>
+                      )}
+                    </ul>
+                  )}
                 </div>
               ))}
+              {!board &&
+                Array.from({ length: 4 }, (_, i) => (
+                  <div key={i} className={styles.column} aria-hidden="true">
+                    <span className={styles.skeleton} />
+                  </div>
+                ))}
             </div>
           </Card>
         </div>
@@ -182,6 +325,47 @@ export default function DashboardPage() {
         </aside>
       </div>
     </div>
+  );
+}
+
+function AssignedRow({ task }: { task: DashboardTask }) {
+  return (
+    <li className={styles.row}>
+      <span className={styles.summary}>
+        <TaskTypeIcon type={task.type} />
+        <Link to={taskPath(task.key)} className={styles.summaryLink}>
+          <span className={styles.taskKey}>{task.key}</span>
+          <span className={styles.taskTitle}>{task.title}</span>
+        </Link>
+      </span>
+      <span>
+        <StatusLozenge status={task.status} />
+      </span>
+      <span>
+        <PriorityIcon priority={task.priority} withLabel />
+      </span>
+      <span className={styles.due}>
+        <DueDate task={task} />
+      </span>
+    </li>
+  );
+}
+
+function BoardCard({ task }: { task: DashboardTask }) {
+  return (
+    <Link to={taskPath(task.key)} className={styles.card}>
+      <span className={styles.cardTitle}>{task.title}</span>
+      <span className={styles.cardMeta}>
+        <TaskTypeIcon type={task.type} size={14} />
+        <span className={styles.taskKey}>{task.key}</span>
+        <PriorityIcon priority={task.priority} />
+        {task.assignee && (
+          <span className={styles.cardAssignee} title={task.assignee.name}>
+            {getInitials(task.assignee.name)}
+          </span>
+        )}
+      </span>
+    </Link>
   );
 }
 

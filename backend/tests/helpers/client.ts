@@ -19,6 +19,7 @@ export function createClient() {
       agent.post(url(path)).set("X-Forwarded-For", ip).send(body),
     patch: (path: string, body?: object) =>
       agent.patch(url(path)).set("X-Forwarded-For", ip).send(body),
+    del: (path: string) => agent.delete(url(path)).set("X-Forwarded-For", ip),
   };
 }
 

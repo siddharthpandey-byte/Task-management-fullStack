@@ -1,0 +1,166 @@
+.control {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  min-height: 40px;
+  padding: 4px 8px;
+  background: var(--color-input-bg);
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--radius-sm);
+  cursor: text;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.control:hover:not(.disabled):not(:focus-within) {
+  background: var(--color-input-bg-hover);
+}
+
+.control:focus-within {
+  border-color: var(--color-focus-ring);
+  box-shadow: inset 0 0 0 1px var(--color-focus-ring);
+}
+
+.invalid,
+.invalid:focus-within {
+  border-color: var(--color-danger-bold);
+}
+
+.invalid:focus-within {
+  box-shadow: inset 0 0 0 1px var(--color-danger-bold);
+}
+
+.disabled {
+  background: var(--color-neutral-button);
+  border-color: transparent;
+  cursor: default;
+}
+
+.chips {
+  display: contents;
+  list-style: none;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  height: 28px;
+  padding: 0 4px 0 4px;
+  font-size: 13px;
+  background: var(--color-neutral-button-hover);
+  border-radius: 14px;
+}
+
+.disabled .chip {
+  padding-right: 10px;
+}
+
+.chipName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.remove {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  color: var(--color-text-muted);
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.remove:hover {
+  color: var(--color-text);
+  background: var(--color-pressed);
+}
+
+.input {
+  flex: 1 1 120px;
+  min-width: 120px;
+  height: 30px;
+  padding: 0 4px;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 14px;
+}
+
+.input::placeholder {
+  color: var(--color-text-subtle);
+}
+
+.none {
+  padding: 0 4px;
+  color: var(--color-text-subtle);
+}
+
+.listbox {
+  z-index: 60;
+  margin: 0;
+  padding: 4px 0;
+  overflow-y: auto;
+  list-style: none;
+  background: var(--color-surface-overlay);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  border-left: 2px solid transparent;
+  cursor: pointer;
+}
+
+.active {
+  background: var(--color-hover);
+  border-left-color: var(--color-primary);
+}
+
+.optionText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.optionName,
+.optionMeta {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.optionMeta {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--color-text-subtle);
+}
+
+.optionRole {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  color: var(--color-text-subtle);
+}

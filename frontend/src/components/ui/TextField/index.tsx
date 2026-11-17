@@ -35,6 +35,12 @@ export function TextField({
       <div className={styles.labelRow}>
         <label htmlFor={inputId} className={styles.label}>
           {label}
+          {inputProps.required && (
+            <span className={styles.required} aria-hidden="true">
+              {" "}
+              *
+            </span>
+          )}
         </label>
         {labelAction}
       </div>

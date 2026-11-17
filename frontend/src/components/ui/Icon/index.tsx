@@ -105,6 +105,45 @@ const PATHS = {
   ),
   arrowRight: <path d="M5 12h14M13 6l6 6-6 6" />,
   x: <path d="M6 6l12 12M18 6 6 18" />,
+  folder: <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z" />,
+  archive: (
+    <>
+      <rect x="3" y="4" width="18" height="5" rx="1" />
+      <path d="M5 9v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9M10 13h4" />
+    </>
+  ),
+  restore: <path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5" />,
+  settings: (
+    <>
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z" />
+    </>
+  ),
+  more: <path d="M5 12h.01M12 12h.01M19 12h.01" strokeWidth={3} />,
+  chevronLeft: <path d="m15 6-6 6 6 6" />,
+  arrowUp: <path d="M12 19V5M6 11l6-6 6 6" />,
+  arrowDown: <path d="M12 5v14M6 13l6 6 6-6" />,
+  priorityHighest: <path d="m6 13 6-6 6 6M6 19l6-6 6 6" />,
+  priorityHigh: <path d="m6 15 6-6 6 6" />,
+  priorityMedium: <path d="M5 9h14M5 15h14" />,
+  priorityLow: <path d="m6 9 6 6 6-6" />,
+  priorityLowest: <path d="m6 5 6 6 6-6M6 11l6 6 6-6" />,
+  bug: (
+    <>
+      <rect x="7" y="8" width="10" height="12" rx="5" />
+      <path d="M12 12v8M7 13H3M21 13h-4M7 17l-3 2M17 17l3 2M9 8a3 3 0 0 1 6 0M8 4l1.5 2M16 4l-1.5 2" />
+    </>
+  ),
+  story: <path d="M6 3h12v18l-6-4-6 4V3Z" />,
+  trash: <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" />,
+  filter: <path d="M3 5h18l-7 8v6l-4 2v-8L3 5Z" />,
+  tag: (
+    <>
+      <path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9-9-9Z" />
+      <path d="M7.5 7.5h.01" />
+    </>
+  ),
+  edit: <path d="M4 20h4L19 9l-4-4L4 16v4ZM14 6l4 4" />,
 } as const;
 
 export type IconName = keyof typeof PATHS;

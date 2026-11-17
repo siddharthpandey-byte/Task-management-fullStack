@@ -6,4 +6,13 @@ export const ROUTES = {
   RESET_PASSWORD: "/reset-password",
   DASHBOARD: "/dashboard",
   ADMIN: "/admin",
+  PROJECTS: "/projects",
+  PROJECT_SETTINGS: "/projects/:key/settings",
+  PROJECT_TASKS: "/projects/:key/tasks",
+  TASKS: "/tasks",
+  TASK_DETAIL: "/browse/:taskKey",
 } as const;
+
+export const projectSettingsPath = (key: string) => `/projects/${encodeURIComponent(key)}/settings`;
+export const projectTasksPath = (key: string) => `/projects/${encodeURIComponent(key)}/tasks`;
+export const taskPath = (taskKey: string) => `/browse/${encodeURIComponent(taskKey)}`;
