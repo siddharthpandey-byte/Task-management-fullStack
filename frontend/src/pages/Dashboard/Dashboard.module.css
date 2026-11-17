@@ -21,6 +21,10 @@
 }
 
 .stat {
+  color: inherit;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
   display: flex;
   align-items: center;
   gap: 16px;
@@ -48,6 +52,11 @@
 .tonePurple {
   color: var(--color-discovery);
   background: var(--color-discovery-bg);
+}
+
+.toneRed {
+  color: var(--color-danger);
+  background: var(--color-danger-bg);
 }
 
 .toneGreen {
@@ -140,7 +149,7 @@
 /* ---------- board ---------- */
 .board {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
   padding: 16px;
 }
@@ -281,6 +290,214 @@
   font-weight: 500;
 }
 
+.stat:hover {
+  border-color: var(--color-border-strong);
+}
+
+.stat:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.statDanger {
+  color: var(--color-danger);
+}
+
+.inlineLink {
+  padding: 0;
+  font-weight: 500;
+  color: var(--color-primary);
+  background: none;
+  border: none;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.cardLink {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-primary);
+}
+
+.cardLink:hover {
+  text-decoration: underline;
+}
+
+/* ---------- assigned rows ---------- */
+.rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 110px 90px 90px;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  padding: 6px 20px;
+  font-size: 14px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.row:hover {
+  background: var(--color-hover);
+}
+
+.summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.summaryLink {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+  color: var(--color-text);
+}
+
+.summaryLink:hover .taskTitle {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+.taskKey {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-subtle);
+}
+
+.taskTitle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.due {
+  font-size: 13px;
+}
+
+.moreLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-primary);
+  border-top: 1px solid var(--color-border);
+}
+
+.moreLink:hover {
+  text-decoration: underline;
+}
+
+/* ---------- board cards ---------- */
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 10px;
+  color: var(--color-text);
+  background: var(--color-surface-raised);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-card);
+}
+
+.card:hover {
+  background: var(--color-hover);
+}
+
+.cardTitle {
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: 13px;
+  line-height: 18px;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.cardMeta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cardAssignee {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  margin-left: auto;
+  color: #fff;
+  background: linear-gradient(135deg, var(--color-brand-from), var(--color-brand-to));
+  border-radius: 50%;
+  font-size: 9px;
+  font-weight: 600;
+}
+
+.columnMore {
+  display: block;
+  padding: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-subtle);
+  text-align: center;
+}
+
+.columnMore:hover {
+  color: var(--color-primary);
+}
+
+/* ---------- loading ---------- */
+.skeleton,
+.skeletonValue {
+  display: block;
+  height: 12px;
+  width: 70%;
+  background: var(--color-neutral-button-hover);
+  border-radius: 6px;
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+.skeletonValue {
+  width: 32px;
+  height: 22px;
+  margin: 2px 0;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton,
+  .skeletonValue {
+    animation: none;
+  }
+}
+
 /* ---------- responsive ---------- */
 @media (max-width: 1200px) {
   .grid {
@@ -310,7 +527,7 @@
   }
 
   .stats {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
   }
 
@@ -326,13 +543,22 @@
     height: 32px;
   }
 
+  .row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .row > :nth-child(3),
+  .row > :nth-child(4) {
+    display: none;
+  }
+
   .tableHead {
     display: none;
   }
 
   /* board scrolls sideways like a real board */
   .board {
-    grid-template-columns: repeat(3, 78%);
+    grid-template-columns: repeat(4, 78%);
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     scroll-padding: 16px;

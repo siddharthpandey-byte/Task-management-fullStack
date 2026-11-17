@@ -58,6 +58,8 @@ const projectSchema = new Schema(
       required: true,
       immutable: true,
     },
+    // last issued task number (WEB-1, WEB-2, …); only ever incremented atomically
+    taskCounter: { type: Number, default: 0, min: 0, select: false },
     archivedAt: { type: Date, default: null },
     archivedBy: { type: Schema.Types.ObjectId, ref: "User", default: null },
   },

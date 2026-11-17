@@ -37,6 +37,13 @@ export const NAV_SECTIONS: NavSection[] = [
         description: "Browse and manage projects",
         keywords: "projects create archive key lead members",
       },
+      {
+        label: "Tasks",
+        icon: "task",
+        to: ROUTES.TASKS,
+        description: "Work items across your projects",
+        keywords: "tasks issues work items assigned to me bugs stories due",
+      },
       { label: "Board", icon: "board" },
       { label: "Backlog", icon: "backlog" },
       { label: "Timeline", icon: "timeline" },

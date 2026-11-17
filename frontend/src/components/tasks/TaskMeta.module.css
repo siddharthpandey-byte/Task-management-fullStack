@@ -1,0 +1,61 @@
+.typeTile {
+  display: inline-grid;
+  flex-shrink: 0;
+  place-items: center;
+  color: #fff;
+  border-radius: 3px;
+}
+
+.type_task {
+  background: #4bade8;
+}
+
+.type_bug {
+  background: #e5493a;
+}
+
+.type_story {
+  background: #63ba3c;
+}
+
+.priority {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.priority_highest,
+.priority_high {
+  color: var(--color-danger-bold);
+}
+
+.priority_medium {
+  color: #e97f33;
+}
+
+.priority_low,
+.priority_lowest {
+  color: var(--color-primary);
+}
+
+.due {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.due_overdue {
+  font-weight: 600;
+  color: var(--color-danger);
+}
+
+.due_today {
+  font-weight: 600;
+  color: var(--color-warning);
+}
+
+.none {
+  color: var(--color-text-subtle);
+}

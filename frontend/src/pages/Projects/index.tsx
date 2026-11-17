@@ -15,7 +15,7 @@ import { Lozenge } from "../../components/ui/Lozenge";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { Pagination } from "../../components/ui/Pagination";
 import { ROLES } from "../../constants/auth.constant";
-import { projectSettingsPath, ROUTES } from "../../constants/route.constant";
+import { projectSettingsPath, projectTasksPath, ROUTES } from "../../constants/route.constant";
 import { useAuth } from "../../hooks/useAuth";
 import { useDebouncedValue } from "../../hooks/useDebouncedValue";
 import { useProjects } from "../../hooks/useProjects";
@@ -43,7 +43,22 @@ export default function ProjectsPage() {
 
   const [searchInput, setSearchInput] = useState(query.search);
   const debouncedSearch = useDebouncedValue(searchInput.trim(), 300);
-  const [creating, setCreating] = useState(false);
+  // ?create=1 (e.g. the dashboard's "New project") opens the create modal
+  const canCreate = user?.role === ROLES.ADMIN || user?.role === ROLES.MANAGER;
+  const [creating, setCreatingState] = useState(() => canCreate && params.get("create") === "1");
+  const setCreating = (open: boolean) => {
+    setCreatingState(open);
+    if (!open && params.has("create")) {
+      setParams(
+        (current) => {
+          const next = new URLSearchParams(current);
+          next.delete("create");
+          return next;
+        },
+        { replace: true }
+      );
+    }
+  };
   const [pending, setPending] = useState<PendingAction | null>(null);
   const [notice, setNotice] = useState("");
 
@@ -97,6 +112,11 @@ export default function ProjectsPage() {
 
   const rowActions = (project: Project): ActionMenuItem[] => {
     const items: ActionMenuItem[] = [
+      {
+        label: "View tasks",
+        icon: "task",
+        onSelect: () => navigate(projectTasksPath(project.key)),
+      },
       {
         label: "Project settings",
         icon: "settings",
@@ -204,7 +224,7 @@ export default function ProjectsPage() {
           <ProjectsEmpty
             search={query.search}
             status={query.status}
-            canCreate={user?.role === ROLES.ADMIN || user?.role === ROLES.MANAGER}
+            canCreate={canCreate}
             onCreate={() => setCreating(true)}
             onClear={() => {
               setSearchInput("");
@@ -242,7 +262,7 @@ export default function ProjectsPage() {
                   : projects.map((project) => (
                       <tr key={project.id}>
                         <td>
-                          <Link to={projectSettingsPath(project.key)} className={styles.nameCell}>
+                          <Link to={projectTasksPath(project.key)} className={styles.nameCell}>
                             <ProjectTile projectKey={project.key} />
                             <span className={styles.name}>{project.name}</span>
                           </Link>

@@ -29,6 +29,8 @@ interface UserPickerProps {
   disabled?: boolean;
   required?: boolean;
   max?: number;
+  // pick from this fixed list (e.g. a project's members) instead of searching all users
+  candidates?: Person[];
 }
 
 interface SearchResult {
@@ -52,6 +54,7 @@ export function UserPicker({
   disabled = false,
   required = false,
   max,
+  candidates,
 }: UserPickerProps) {
   const inputId = useId();
   const listId = useId();
@@ -68,7 +71,7 @@ export function UserPicker({
   const debouncedQuery = useDebouncedValue(query.trim(), 250);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open || candidates) return;
     const controller = new AbortController();
     userService
       .searchActive(debouncedQuery, controller.signal)
@@ -78,16 +81,27 @@ export function UserPicker({
         setResult({ query: debouncedQuery, people: [], error: getErrorMessage(err) });
       });
     return () => controller.abort();
-  }, [open, debouncedQuery]);
+  }, [open, debouncedQuery, candidates]);
 
-  const loading = open && (result?.query !== debouncedQuery || query.trim() !== debouncedQuery);
+  const loading =
+    !candidates && open && (result?.query !== debouncedQuery || query.trim() !== debouncedQuery);
 
   const options = useMemo(() => {
     const hidden = new Set([...(excludeIds ?? []), ...value.map((p) => p.id)]);
-    return (result?.people ?? []).filter(
+    const needle = query.trim().toLowerCase();
+    const pool = candidates
+      ? candidates.filter(
+          (person) =>
+            person.isActive &&
+            (!needle ||
+              person.name.toLowerCase().includes(needle) ||
+              person.email.toLowerCase().includes(needle))
+        )
+      : (result?.people ?? []);
+    return pool.filter(
       (person) => !hidden.has(person.id) && (!allowedRoles || allowedRoles.includes(person.role))
     );
-  }, [result, excludeIds, value, allowedRoles]);
+  }, [result, excludeIds, value, allowedRoles, candidates, query]);
 
   const atMax = multiple && max !== undefined && value.length >= max;
   const describedBy = [error && errorId, hint && hintId].filter(Boolean).join(" ") || undefined;
@@ -225,7 +239,7 @@ export function UserPicker({
               <li className={styles.status}>
                 <Spinner size="sm" /> Searching…
               </li>
-            ) : result?.error ? (
+            ) : !candidates && result?.error ? (
               <li className={styles.status}>{result.error}</li>
             ) : options.length === 0 ? (
               <li className={styles.status}>No matching people</li>

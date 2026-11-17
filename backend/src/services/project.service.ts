@@ -1,6 +1,7 @@
 import type { Types } from "mongoose";
-import { PROJECT_STATUS, ROLES } from "../constants.js";
+import { PROJECT_STATUS, ROLES, TASK_STATUS } from "../constants.js";
 import { ProjectModel, type ProjectDocument } from "../models/project.model.js";
+import { TaskModel } from "../models/task.model.js";
 import { UserModel } from "../models/user.model.js";
 import type { AuthUser } from "../types/express.js";
 import { ApiError } from "../utils/ApiError.js";
@@ -12,21 +13,21 @@ import type {
 } from "../validators/project.validator.js";
 
 // only what the UI needs about a person; never the whole user document
-const PERSON_FIELDS = "name email role isActive";
+export const PERSON_FIELDS = "name email role isActive";
 const POPULATE = [
   { path: "lead", select: PERSON_FIELDS },
   { path: "members", select: PERSON_FIELDS },
 ];
 
 type IdLike = Types.ObjectId | { _id: Types.ObjectId } | string;
-const idOf = (value: IdLike): string =>
+export const idOf = (value: IdLike): string =>
   typeof value === "string"
     ? value
     : "_id" in value
       ? String(value._id)
       : String(value);
 
-const READ_ONLY_MESSAGE =
+export const READ_ONLY_MESSAGE =
   "Archived projects are read-only. Restore it to make changes.";
 
 // --- permissions -----------------------------------------------------------
@@ -177,6 +178,7 @@ export async function updateProject(
   if (input.name !== undefined) project.name = input.name;
   if (input.description !== undefined) project.description = input.description;
 
+  let removed: string[] = [];
   if (input.leadId !== undefined || input.memberIds !== undefined) {
     const currentMembers = new Set(project.members.map(idOf));
     const leadId = input.leadId ?? idOf(project.lead);
@@ -190,9 +192,23 @@ export async function updateProject(
     );
 
     project.set({ lead: leadId, members: memberIds });
+    removed = [...currentMembers].filter((id) => !memberIds.includes(id));
   }
 
   await project.save();
+
+  // keep "assignee is a project member" true when people leave;
+  // finished work keeps its assignee for the record
+  if (removed.length > 0) {
+    await TaskModel.updateMany(
+      {
+        project: project._id,
+        assignee: { $in: removed },
+        status: { $ne: TASK_STATUS.DONE },
+      },
+      { $set: { assignee: null } }
+    );
+  }
   return populate(project);
 }
 

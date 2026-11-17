@@ -1,0 +1,22 @@
+.control {
+  position: relative;
+}
+
+.select {
+  padding-right: 36px;
+  appearance: none;
+  cursor: pointer;
+}
+
+.select:disabled {
+  cursor: not-allowed;
+}
+
+.chevron {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  color: var(--color-text-subtle);
+  transform: translateY(-50%);
+  pointer-events: none;
+}

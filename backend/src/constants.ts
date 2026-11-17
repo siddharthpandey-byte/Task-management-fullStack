@@ -46,3 +46,60 @@ export const PROJECT_LIMITS = {
   DESCRIPTION_MAX: 2000,
   MEMBERS_MAX: 100,
 } as const;
+
+// --- tasks -------------------------------------------------------------------
+
+export const TASK_STATUS = {
+  TODO: "todo",
+  IN_PROGRESS: "in_progress",
+  IN_REVIEW: "in_review",
+  DONE: "done",
+} as const;
+export type TaskStatus = (typeof TASK_STATUS)[keyof typeof TASK_STATUS];
+export const TASK_STATUS_VALUES = Object.values(TASK_STATUS) as [
+  TaskStatus,
+  ...TaskStatus[],
+];
+
+export const TASK_PRIORITY = {
+  LOWEST: "lowest",
+  LOW: "low",
+  MEDIUM: "medium",
+  HIGH: "high",
+  HIGHEST: "highest",
+} as const;
+export type TaskPriority = (typeof TASK_PRIORITY)[keyof typeof TASK_PRIORITY];
+export const TASK_PRIORITY_VALUES = Object.values(TASK_PRIORITY) as [
+  TaskPriority,
+  ...TaskPriority[],
+];
+// stored alongside the priority so "sort by priority" is a real order, not alphabetical
+export const TASK_PRIORITY_RANK: Record<TaskPriority, number> = {
+  lowest: 1,
+  low: 2,
+  medium: 3,
+  high: 4,
+  highest: 5,
+};
+
+export const TASK_TYPE = {
+  TASK: "task",
+  BUG: "bug",
+  STORY: "story",
+} as const;
+export type TaskType = (typeof TASK_TYPE)[keyof typeof TASK_TYPE];
+export const TASK_TYPE_VALUES = Object.values(TASK_TYPE) as [
+  TaskType,
+  ...TaskType[],
+];
+
+// e.g. "WEB-12": project key + per-project sequence number
+export const TASK_KEY_REGEX = /^([A-Z][A-Z0-9]{1,9})-([1-9]\d{0,8})$/;
+export const TASK_LIMITS = {
+  TITLE_MAX: 255,
+  DESCRIPTION_MAX: 10000,
+  LABELS_MAX: 10,
+  LABEL_MAX: 30,
+} as const;
+// lowercase letters, digits, dash/underscore/dot; no spaces (Jira-style labels)
+export const TASK_LABEL_REGEX = /^[a-z0-9][a-z0-9._-]*$/;

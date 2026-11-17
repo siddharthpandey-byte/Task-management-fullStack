@@ -8,5 +8,8 @@ export const ResetPasswordPage = lazy(() => import("../pages/ResetPassword"));
 export const DashboardPage = lazy(() => import("../pages/Dashboard"));
 export const ProjectsPage = lazy(() => import("../pages/Projects"));
 export const ProjectSettingsPage = lazy(() => import("../pages/ProjectSettings"));
+export const ProjectTasksPage = lazy(() => import("../pages/ProjectTasks"));
+export const TasksPage = lazy(() => import("../pages/Tasks"));
+export const TaskDetailPage = lazy(() => import("../pages/TaskDetail"));
 export const AdminPage = lazy(() => import("../pages/Admin"));
 export const NotFoundPage = lazy(() => import("../pages/NotFound"));

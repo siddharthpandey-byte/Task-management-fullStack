@@ -1,6 +1,6 @@
-import { isValidObjectId } from "mongoose";
 import { z } from "zod";
 import { PROJECT_KEY_REGEX, PROJECT_LIMITS } from "../constants.js";
+import { limitSchema, objectId, orderSchema, pageSchema } from "./common.js";
 
 const name = z
   .string({ error: "Project name is required" })
@@ -30,11 +30,6 @@ const description = z
     PROJECT_LIMITS.DESCRIPTION_MAX,
     `Description must be at most ${PROJECT_LIMITS.DESCRIPTION_MAX} characters`
   );
-
-const objectId = (label: string) =>
-  z
-    .string({ error: `${label} is invalid` })
-    .refine((value) => isValidObjectId(value), `${label} is invalid`);
 
 const leadId = objectId("Project lead");
 
@@ -68,12 +63,12 @@ export const updateProjectSchema = z
   });
 
 export const listProjectsQuerySchema = z.object({
-  page: z.coerce.number().int().min(1).default(1),
-  limit: z.coerce.number().int().min(1).max(100).default(20),
+  page: pageSchema,
+  limit: limitSchema,
   search: z.string().trim().max(100).optional(),
   status: z.enum(["active", "archived", "all"]).default("active"),
   sort: z.enum(["name", "key", "createdAt", "updatedAt"]).default("updatedAt"),
-  order: z.enum(["asc", "desc"]).default("desc"),
+  order: orderSchema.default("desc"),
 });
 
 export const projectKeyParamSchema = z

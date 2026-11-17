@@ -16,8 +16,11 @@ import {
   NotFoundPage,
   ProjectSettingsPage,
   ProjectsPage,
+  ProjectTasksPage,
   ResetPasswordPage,
   SignupPage,
+  TaskDetailPage,
+  TasksPage,
 } from "./lazy.pages";
 
 export const router = createBrowserRouter([
@@ -61,6 +64,9 @@ export const router = createBrowserRouter([
               { path: ROUTES.PROJECTS, element: <ProjectsPage /> },
               // visibility is enforced by the API (404 for projects you can't see)
               { path: ROUTES.PROJECT_SETTINGS, element: <ProjectSettingsPage /> },
+              { path: ROUTES.PROJECT_TASKS, element: <ProjectTasksPage /> },
+              { path: ROUTES.TASKS, element: <TasksPage /> },
+              { path: ROUTES.TASK_DETAIL, element: <TaskDetailPage /> },
               {
                 element: <RoleRoute allow={[ROLES.ADMIN]} />,
                 children: [{ path: ROUTES.ADMIN, element: <AdminPage /> }],
