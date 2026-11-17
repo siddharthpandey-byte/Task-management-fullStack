@@ -16,4 +16,10 @@ export const API_ENDPOINTS = {
   USERS: {
     LIST: "/users",
   },
+  PROJECTS: {
+    LIST: "/projects",
+    DETAIL: (key: string) => `/projects/${encodeURIComponent(key)}`,
+    ARCHIVE: (key: string) => `/projects/${encodeURIComponent(key)}/archive`,
+    RESTORE: (key: string) => `/projects/${encodeURIComponent(key)}/restore`,
+  },
 } as const;

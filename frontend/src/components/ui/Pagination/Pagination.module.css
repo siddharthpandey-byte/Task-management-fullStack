@@ -1,0 +1,27 @@
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--color-border);
+}
+
+.summary {
+  font-size: 12px;
+  color: var(--color-text-subtle);
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.page {
+  padding: 0 8px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}

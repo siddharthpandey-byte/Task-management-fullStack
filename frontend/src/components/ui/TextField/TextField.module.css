@@ -101,3 +101,7 @@
   line-height: 16px;
   color: var(--color-text-subtle);
 }
+
+.required {
+  color: var(--color-danger);
+}

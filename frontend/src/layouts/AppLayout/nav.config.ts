@@ -30,6 +30,13 @@ export const NAV_SECTIONS: NavSection[] = [
         description: "Your work at a glance",
         keywords: "home overview my work summary",
       },
+      {
+        label: "Projects",
+        icon: "folder",
+        to: ROUTES.PROJECTS,
+        description: "Browse and manage projects",
+        keywords: "projects create archive key lead members",
+      },
       { label: "Board", icon: "board" },
       { label: "Backlog", icon: "backlog" },
       { label: "Timeline", icon: "timeline" },

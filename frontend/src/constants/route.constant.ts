@@ -6,4 +6,8 @@ export const ROUTES = {
   RESET_PASSWORD: "/reset-password",
   DASHBOARD: "/dashboard",
   ADMIN: "/admin",
+  PROJECTS: "/projects",
+  PROJECT_SETTINGS: "/projects/:key/settings",
 } as const;
+
+export const projectSettingsPath = (key: string) => `/projects/${encodeURIComponent(key)}/settings`;

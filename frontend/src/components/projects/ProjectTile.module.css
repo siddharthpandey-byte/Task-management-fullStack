@@ -1,0 +1,46 @@
+.tile {
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  color: #fff;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  user-select: none;
+}
+
+.sm {
+  width: 24px;
+  height: 24px;
+  font-size: 12px;
+}
+
+.lg {
+  width: 40px;
+  height: 40px;
+  font-size: 18px;
+  border-radius: 6px;
+}
+
+.blue {
+  background: #1d7afc;
+}
+
+.purple {
+  background: #6e5dc6;
+}
+
+.teal {
+  background: #1d9aaa;
+}
+
+.green {
+  background: #22a06b;
+}
+
+.orange {
+  background: #e56910;
+}
+
+.magenta {
+  background: #cd519d;
+}

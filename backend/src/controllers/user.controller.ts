@@ -4,10 +4,8 @@ import { UserModel } from "../models/user.model.js";
 import { revokeAllSessions } from "../services/auth.service.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import { escapeRegex } from "../utils/regex.js";
 import { listUsersQuerySchema } from "../validators/user.validator.js";
-
-const escapeRegex = (value: string) =>
-  value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 function getTargetId(req: Request): string {
   const id = String(req.params.id);
@@ -21,17 +19,16 @@ function getTargetId(req: Request): string {
 export async function listUsers(req: Request, res: Response) {
   const parsed = listUsersQuerySchema.safeParse(req.query);
   if (!parsed.success) throw new ApiError(400, "Invalid query parameters");
-  const { page, limit, search } = parsed.data;
+  const { page, limit, search, isActive } = parsed.data;
 
-  // user input is escaped before being used in a regex (prevents ReDoS / injection)
-  const filter = search
-    ? {
-        $or: [
-          { name: { $regex: escapeRegex(search), $options: "i" } },
-          { email: { $regex: escapeRegex(search), $options: "i" } },
-        ],
-      }
-    : {};
+  const filter: Record<string, unknown> = {};
+  if (search) {
+    filter.$or = [
+      { name: { $regex: escapeRegex(search), $options: "i" } },
+      { email: { $regex: escapeRegex(search), $options: "i" } },
+    ];
+  }
+  if (isActive !== undefined) filter.isActive = isActive;
 
   const [users, total] = await Promise.all([
     UserModel.find(filter)

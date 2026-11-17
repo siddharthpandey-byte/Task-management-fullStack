@@ -14,6 +14,8 @@ import {
   ForgotPasswordPage,
   LoginPage,
   NotFoundPage,
+  ProjectSettingsPage,
+  ProjectsPage,
   ResetPasswordPage,
   SignupPage,
 } from "./lazy.pages";
@@ -56,6 +58,9 @@ export const router = createBrowserRouter([
             element: <AppLayout />,
             children: [
               { path: ROUTES.DASHBOARD, element: <DashboardPage /> },
+              { path: ROUTES.PROJECTS, element: <ProjectsPage /> },
+              // visibility is enforced by the API (404 for projects you can't see)
+              { path: ROUTES.PROJECT_SETTINGS, element: <ProjectSettingsPage /> },
               {
                 element: <RoleRoute allow={[ROLES.ADMIN]} />,
                 children: [{ path: ROUTES.ADMIN, element: <AdminPage /> }],
