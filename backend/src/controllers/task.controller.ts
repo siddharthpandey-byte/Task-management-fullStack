@@ -4,6 +4,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { projectKeyParamSchema } from "../validators/project.validator.js";
 import {
+  boardQuerySchema,
   listTasksQuerySchema,
   taskKeyParamSchema,
 } from "../validators/task.validator.js";
@@ -71,4 +72,24 @@ export async function updateTask(req: Request, res: Response) {
 export async function deleteTask(req: Request, res: Response) {
   await taskService.deleteTask(req.user!, getTaskKey(req));
   res.status(200).json(new ApiResponse(200, null, "Task deleted"));
+}
+
+// GET /projects/:key/board
+export async function getBoard(req: Request, res: Response) {
+  const parsed = boardQuerySchema.safeParse(req.query);
+  if (!parsed.success) throw new ApiError(400, "Invalid query parameters");
+  const board = await taskService.getBoard(
+    req.user!,
+    getProjectKey(req),
+    parsed.data
+  );
+  // the board is live data; never serve it from a cache
+  res.set("Cache-Control", "no-store");
+  res.status(200).json(new ApiResponse(200, board));
+}
+
+// POST /tasks/:taskKey/move
+export async function moveTask(req: Request, res: Response) {
+  const task = await taskService.moveTask(req.user!, getTaskKey(req), req.body);
+  res.status(200).json(new ApiResponse(200, { task }, "Task moved"));
 }

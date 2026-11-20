@@ -22,10 +22,12 @@ export const API_ENDPOINTS = {
     ARCHIVE: (key: string) => `/projects/${encodeURIComponent(key)}/archive`,
     RESTORE: (key: string) => `/projects/${encodeURIComponent(key)}/restore`,
     TASKS: (key: string) => `/projects/${encodeURIComponent(key)}/tasks`,
+    BOARD: (key: string) => `/projects/${encodeURIComponent(key)}/board`,
   },
   DASHBOARD: "/dashboard",
   TASKS: {
     LIST: "/tasks",
     DETAIL: (taskKey: string) => `/tasks/${encodeURIComponent(taskKey)}`,
+    MOVE: (taskKey: string) => `/tasks/${encodeURIComponent(taskKey)}/move`,
   },
 } as const;

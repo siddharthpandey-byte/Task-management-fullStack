@@ -3,11 +3,15 @@ import {
   deleteTask,
   getTask,
   listTasks,
+  moveTask,
   updateTask,
 } from "../controllers/task.controller.js";
 import { authenticate } from "../middlewares/auth.js";
 import { validate } from "../middlewares/validate.js";
-import { updateTaskSchema } from "../validators/task.validator.js";
+import {
+  moveTaskSchema,
+  updateTaskSchema,
+} from "../validators/task.validator.js";
 
 const router = Router();
 
@@ -19,5 +23,7 @@ router.get("/", listTasks);
 router.get("/:taskKey", getTask);
 router.patch("/:taskKey", validate(updateTaskSchema), updateTask);
 router.delete("/:taskKey", deleteTask);
+// drag-and-drop on the board: status + position in one atomic change
+router.post("/:taskKey/move", validate(moveTaskSchema), moveTask);
 
 export default router;

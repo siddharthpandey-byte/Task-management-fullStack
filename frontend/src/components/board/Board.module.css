@@ -1,0 +1,269 @@
+/* --- board ---------------------------------------------------------------- */
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(272px, 1fr));
+  gap: 12px;
+  align-items: start;
+  /* narrow screens scroll sideways rather than squeezing the columns */
+  overflow-x: auto;
+  padding-bottom: 8px;
+  overscroll-behavior-x: contain;
+}
+
+/* --- column --------------------------------------------------------------- */
+
+.column {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  max-height: calc(100vh - var(--header-height) - 240px);
+  min-height: 240px;
+  background: var(--color-bg);
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease;
+}
+
+.columnOver {
+  background: var(--color-selected);
+  border-color: var(--color-focus-ring);
+}
+
+.columnHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 12px 8px;
+}
+
+.columnTitle {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 16px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+}
+
+.columnCount {
+  min-width: 20px;
+  padding: 0 6px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 18px;
+  text-align: center;
+  color: var(--color-text-muted);
+  background: var(--color-neutral-lozenge-bg);
+  border-radius: 9px;
+}
+
+.columnBody {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 64px;
+  padding: 2px 8px 8px;
+  overflow-y: auto;
+}
+
+.columnEmpty {
+  display: grid;
+  place-items: center;
+  min-height: 72px;
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-text-subtle);
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.columnFooter {
+  margin: 0;
+  padding: 8px 12px 12px;
+  font-size: 12px;
+  color: var(--color-text-subtle);
+}
+
+.columnFooter a {
+  color: var(--color-primary);
+  font-weight: 500;
+}
+
+/* --- card ----------------------------------------------------------------- */
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+  color: var(--color-text);
+  background: var(--color-surface-raised);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+  cursor: grab;
+  /* touch: allow page scroll until the press-and-hold activates a drag */
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.card:hover {
+  background: var(--color-input-bg-hover);
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.cardStatic {
+  cursor: pointer;
+}
+
+/* the slot the card will land in while it is being dragged */
+.cardPlaceholder {
+  opacity: 0.4;
+  box-shadow: none;
+  background: var(--color-pressed);
+}
+
+.cardPlaceholder > * {
+  visibility: hidden;
+}
+
+/* the copy that follows the pointer */
+.cardOverlay {
+  cursor: grabbing;
+  box-shadow: var(--shadow-lg);
+  transform: rotate(2deg);
+}
+
+.cardTitle {
+  display: -webkit-box;
+  overflow: hidden;
+  padding-right: 28px;
+  font-size: 14px;
+  line-height: 20px;
+  color: inherit;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+/* the whole card is the click target for the task link */
+.cardTitle::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.cardLabels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.cardLabel {
+  max-width: 100%;
+  overflow: hidden;
+  padding: 0 4px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 16px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--color-text-muted);
+  background: var(--color-neutral-lozenge-bg);
+  border-radius: 3px;
+}
+
+.cardMeta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 20px;
+  font-size: 12px;
+}
+
+.cardKey {
+  font-weight: 600;
+  color: var(--color-text-subtle);
+  white-space: nowrap;
+}
+
+.cardDue {
+  display: inline-flex;
+  font-size: 12px;
+}
+
+.cardAssignee {
+  display: inline-flex;
+  margin-left: auto;
+}
+
+.unassigned {
+  width: 20px;
+  height: 20px;
+  border: 1px dashed var(--color-border-strong);
+  border-radius: 50%;
+}
+
+/* spinner and "•••" menu sit above the stretched title link */
+.cardCorner {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cardMenu {
+  display: inline-flex;
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.card:hover .cardMenu,
+.card:focus-within .cardMenu,
+.cardMenu:has([aria-expanded="true"]) {
+  opacity: 1;
+}
+
+/* touch devices have no hover: keep the menu visible */
+@media (hover: none) {
+  .cardMenu {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .column,
+  .cardMenu {
+    transition: none;
+  }
+
+  .cardOverlay {
+    transform: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .board {
+    grid-template-columns: repeat(4, minmax(248px, 85vw));
+    scroll-snap-type: x mandatory;
+  }
+
+  .column {
+    scroll-snap-align: start;
+    max-height: none;
+  }
+}

@@ -1,5 +1,11 @@
 import type { Types } from "mongoose";
-import { PROJECT_STATUS, ROLES, TASK_STATUS } from "../constants.js";
+import {
+  PROJECT_STATUS,
+  ROLES,
+  TASK_STATUS,
+  TASK_STATUS_VALUES,
+  type TaskStatus,
+} from "../constants.js";
 import { ProjectModel, type ProjectDocument } from "../models/project.model.js";
 import { TaskModel, type TaskDocument } from "../models/task.model.js";
 import { UserModel } from "../models/user.model.js";
@@ -7,10 +13,13 @@ import type { AuthUser } from "../types/express.js";
 import { ApiError } from "../utils/ApiError.js";
 import { escapeRegex } from "../utils/regex.js";
 import type {
+  BoardQuery,
   CreateTaskInput,
   ListTasksQuery,
+  MoveTaskInput,
   UpdateTaskInput,
 } from "../validators/task.validator.js";
+import { byRank, rankAtEnd, rankBetween } from "./rank.service.js";
 import {
   PERSON_FIELDS,
   READ_ONLY_MESSAGE,
@@ -134,23 +143,18 @@ export async function visibleProjectIds(
   return ProjectModel.find(filter).distinct("_id");
 }
 
-// projectKey set → one project's tasks (from /projects/:key/tasks);
-// otherwise every task the user can see, optionally narrowed by `query.project`
-export async function listTasks(
-  user: AuthUser,
-  query: ListTasksQuery,
-  projectKey?: string
-) {
-  const { page, limit, search, status, priority, type, assignee, due } = query;
-  const scopedKey = projectKey ?? query.project;
+type TaskFilterQuery = Pick<
+  ListTasksQuery,
+  "search" | "status" | "priority" | "type" | "assignee" | "due"
+>;
 
+// the filter conditions shared by the task list and the board (project scope excluded)
+function taskFilterConditions(
+  user: AuthUser,
+  query: TaskFilterQuery
+): Record<string, unknown>[] {
+  const { search, status, priority, type, assignee, due } = query;
   const and: Record<string, unknown>[] = [];
-  if (scopedKey) {
-    const project = await findVisibleProject(user, scopedKey);
-    and.push({ project: project._id });
-  } else {
-    and.push({ project: { $in: await visibleProjectIds(user) } });
-  }
 
   if (status?.length) and.push({ status: { $in: status } });
   if (priority?.length) and.push({ priority: { $in: priority } });
@@ -178,8 +182,24 @@ export async function listTasks(
     const pattern = { $regex: escapeRegex(search), $options: "i" };
     and.push({ $or: [{ title: pattern }, { key: pattern }] });
   }
+  return and;
+}
 
-  const filter = { $and: and };
+// projectKey set → one project's tasks (from /projects/:key/tasks);
+// otherwise every task the user can see, optionally narrowed by `query.project`
+export async function listTasks(
+  user: AuthUser,
+  query: ListTasksQuery,
+  projectKey?: string
+) {
+  const { page, limit } = query;
+  const scopedKey = projectKey ?? query.project;
+
+  const scope = scopedKey
+    ? { project: (await findVisibleProject(user, scopedKey))._id }
+    : { project: { $in: await visibleProjectIds(user) } };
+
+  const filter = { $and: [scope, ...taskFilterConditions(user, query)] };
   const direction = query.order === "asc" ? 1 : -1;
   const sortField =
     query.sort === "priority"
@@ -219,7 +239,59 @@ export async function listTasks(
   };
 }
 
+// --- board -----------------------------------------------------------------
+
+// a column never returns more than this; the header still shows the full count
+export const BOARD_COLUMN_LIMIT = 200;
+
+// One project's tasks grouped into a column per status, each in rank order.
+// Rank is compared byte-wise, so these queries must not use a collation.
+export async function getBoard(
+  user: AuthUser,
+  projectKey: string,
+  query: BoardQuery
+) {
+  const project = await findVisibleProject(user, projectKey);
+  const conditions = taskFilterConditions(user, query);
+
+  const columns = await Promise.all(
+    TASK_STATUS_VALUES.map(async (status) => {
+      const filter = {
+        $and: [{ project: project._id, status }, ...conditions],
+      };
+      const [tasks, total] = await Promise.all([
+        TaskModel.find(filter)
+          .sort({ rank: 1, number: 1 })
+          .limit(BOARD_COLUMN_LIMIT)
+          .populate(TASK_POPULATE),
+        TaskModel.countDocuments(filter),
+      ]);
+      return {
+        status,
+        total,
+        tasks: tasks.map((task) =>
+          present(task, permissionsFor(user, project, task))
+        ),
+      };
+    })
+  );
+
+  return {
+    project: { key: project.key, name: project.name, status: project.status },
+    canEdit: canEditTasks(user, project),
+    columnLimit: BOARD_COLUMN_LIMIT,
+    columns,
+  };
+}
+
 // --- mutations -------------------------------------------------------------
+
+// moving into "done" stamps completedAt; moving out of it clears the stamp
+function applyStatus(task: TaskDocument, status: TaskStatus) {
+  if (status === task.status) return;
+  task.completedAt = status === TASK_STATUS.DONE ? new Date() : null;
+  task.status = status;
+}
 
 export async function createTask(
   user: AuthUser,
@@ -241,6 +313,7 @@ export async function createTask(
   const number = counter.get("taskCounter") as number;
 
   const status = input.status ?? TASK_STATUS.TODO;
+  const rank = await rankAtEnd(project._id);
   const task = await TaskModel.create({
     project: project._id,
     number,
@@ -255,6 +328,7 @@ export async function createTask(
     dueDate: input.dueDate ?? null,
     labels: input.labels ?? [],
     completedAt: status === TASK_STATUS.DONE ? new Date() : null,
+    rank,
   });
   await task.populate(TASK_POPULATE);
   return present(task, permissionsFor(user, project, task));
@@ -284,10 +358,7 @@ export async function updateTask(
   if (input.dueDate !== undefined) task.dueDate = input.dueDate;
   if (input.labels !== undefined) task.labels = input.labels;
 
-  if (input.status !== undefined && input.status !== task.status) {
-    task.completedAt = input.status === TASK_STATUS.DONE ? new Date() : null;
-    task.status = input.status;
-  }
+  if (input.status !== undefined) applyStatus(task, input.status);
 
   await task.save();
   await task.populate(TASK_POPULATE);
@@ -304,4 +375,90 @@ export async function deleteTask(user: AuthUser, taskKey: string) {
     );
   }
   await task.deleteOne();
+}
+
+const BOARD_CHANGED =
+  "The board changed while you were moving this task. Refresh and try again.";
+
+// Drag-and-drop: put a task into `status`, between the card above it (`afterKey`)
+// and the card below it (`beforeKey`) as the client last saw them. The server works
+// out the rank, so a client can never write an arbitrary rank.
+export async function moveTask(
+  user: AuthUser,
+  taskKey: string,
+  input: MoveTaskInput
+) {
+  const { project, task } = await findVisibleTask(user, taskKey);
+  assertWritable(user, project);
+
+  const afterKey = input.afterKey ?? null;
+  const beforeKey = input.beforeKey ?? null;
+  const neighbourError = (field: string, message: string) =>
+    new ApiError(400, message, [{ field, message }]);
+
+  if (afterKey === task.key || beforeKey === task.key) {
+    throw neighbourError(
+      afterKey === task.key ? "afterKey" : "beforeKey",
+      "A task can't be placed next to itself"
+    );
+  }
+  if (afterKey && afterKey === beforeKey) {
+    throw neighbourError(
+      "beforeKey",
+      "The cards above and below must be different"
+    );
+  }
+
+  const keys = [afterKey, beforeKey].filter((k): k is string => k !== null);
+  const found = keys.length
+    ? await TaskModel.find({ project: project._id, key: { $in: keys } })
+        .select("_id key number status rank")
+        .lean()
+    : [];
+  const byKey = new Map(found.map((t) => [t.key, t]));
+  const after = afterKey ? byKey.get(afterKey) : null;
+  const before = beforeKey ? byKey.get(beforeKey) : null;
+  if (after === undefined) {
+    throw neighbourError(
+      "afterKey",
+      "The card above isn't a task in this project"
+    );
+  }
+  if (before === undefined) {
+    throw neighbourError(
+      "beforeKey",
+      "The card below isn't a task in this project"
+    );
+  }
+
+  // a neighbour that has since moved to another column means the client's view is stale
+  if (
+    (after && after.status !== input.status) ||
+    (before && before.status !== input.status)
+  ) {
+    throw new ApiError(409, BOARD_CHANGED);
+  }
+
+  // dropped back where it already was: nothing to write
+  const self = { _id: task._id, number: task.number, rank: task.rank };
+  const alreadyThere =
+    task.status === input.status &&
+    Boolean(task.rank) &&
+    (!after || (Boolean(after.rank) && byRank(after, self) < 0)) &&
+    (!before || (Boolean(before.rank) && byRank(self, before) < 0));
+  if (!alreadyThere) {
+    const result = await rankBetween(
+      project._id,
+      { after: after ?? null, before: before ?? null },
+      task._id
+    );
+    if (!result.ok) throw new ApiError(409, BOARD_CHANGED);
+
+    task.rank = result.rank;
+    applyStatus(task, input.status);
+    await task.save();
+  }
+
+  await task.populate(TASK_POPULATE);
+  return present(task, permissionsFor(user, project, task));
 }

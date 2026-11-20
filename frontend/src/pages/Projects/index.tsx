@@ -15,7 +15,12 @@ import { Lozenge } from "../../components/ui/Lozenge";
 import { PageHeader } from "../../components/ui/PageHeader";
 import { Pagination } from "../../components/ui/Pagination";
 import { ROLES } from "../../constants/auth.constant";
-import { projectSettingsPath, projectTasksPath, ROUTES } from "../../constants/route.constant";
+import {
+  projectBoardPath,
+  projectSettingsPath,
+  projectTasksPath,
+  ROUTES,
+} from "../../constants/route.constant";
 import { useAuth } from "../../hooks/useAuth";
 import { useDebouncedValue } from "../../hooks/useDebouncedValue";
 import { useProjects } from "../../hooks/useProjects";
@@ -116,6 +121,11 @@ export default function ProjectsPage() {
         label: "View tasks",
         icon: "task",
         onSelect: () => navigate(projectTasksPath(project.key)),
+      },
+      {
+        label: "Open board",
+        icon: "board",
+        onSelect: () => navigate(projectBoardPath(project.key)),
       },
       {
         label: "Project settings",

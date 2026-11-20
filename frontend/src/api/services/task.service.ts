@@ -1,6 +1,9 @@
 import type { ApiResponse } from "../../types/api.types";
 import type {
+  BoardData,
+  BoardQuery,
   CreateTaskInput,
+  MoveTaskInput,
   Task,
   TaskListQuery,
   TaskListResult,
@@ -61,6 +64,24 @@ export const taskService = {
   async update(taskKey: string, input: UpdateTaskInput): Promise<Task> {
     const { data } = await axiosInstance.patch<TaskPayload>(
       API_ENDPOINTS.TASKS.DETAIL(taskKey),
+      input
+    );
+    return data.data.task;
+  },
+
+  async board(projectKey: string, query: BoardQuery, signal?: AbortSignal): Promise<BoardData> {
+    const { search, priority, type, assignee, due } = toTaskParams(query);
+    const { data } = await axiosInstance.get<ApiResponse<BoardData>>(
+      API_ENDPOINTS.PROJECTS.BOARD(projectKey),
+      { params: { search, priority, type, assignee, due }, signal }
+    );
+    return data.data;
+  },
+
+  // status + position in one change; the server works out the rank from the neighbours
+  async move(taskKey: string, input: MoveTaskInput): Promise<Task> {
+    const { data } = await axiosInstance.post<TaskPayload>(
+      API_ENDPOINTS.TASKS.MOVE(taskKey),
       input
     );
     return data.data.task;

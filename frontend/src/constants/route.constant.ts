@@ -9,6 +9,8 @@ export const ROUTES = {
   PROJECTS: "/projects",
   PROJECT_SETTINGS: "/projects/:key/settings",
   PROJECT_TASKS: "/projects/:key/tasks",
+  PROJECT_BOARD: "/projects/:key/board",
+  BOARD: "/board",
   TASKS: "/tasks",
   TASK_DETAIL: "/browse/:taskKey",
 } as const;
@@ -16,3 +18,4 @@ export const ROUTES = {
 export const projectSettingsPath = (key: string) => `/projects/${encodeURIComponent(key)}/settings`;
 export const projectTasksPath = (key: string) => `/projects/${encodeURIComponent(key)}/tasks`;
 export const taskPath = (taskKey: string) => `/browse/${encodeURIComponent(taskKey)}`;
+export const projectBoardPath = (key: string) => `/projects/${encodeURIComponent(key)}/board`;

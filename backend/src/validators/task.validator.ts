@@ -146,6 +146,37 @@ export const taskKeyParamSchema = z
   .toUpperCase()
   .regex(TASK_KEY_REGEX);
 
+// the board shows every status, paginates per column and sorts by rank,
+// so it takes only the narrowing filters of the list
+export const boardQuerySchema = listTasksQuerySchema.pick({
+  search: true,
+  priority: true,
+  type: true,
+  assignee: true,
+  due: true,
+});
+
+// neighbours as the client saw them: the card directly above and directly below the
+// drop position (either is null/omitted at the top or bottom of a column)
+const neighbourKey = (label: string) =>
+  z
+    .string({ error: `${label} must be a task key` })
+    .trim()
+    .toUpperCase()
+    .regex(TASK_KEY_REGEX, `${label} must be a task key`)
+    .nullable()
+    .optional();
+
+export const moveTaskSchema = z.strictObject({
+  status: z.enum(TASK_STATUS_VALUES, {
+    error: `Status must be one of: ${TASK_STATUS_VALUES.join(", ")}`,
+  }),
+  afterKey: neighbourKey("The card above"),
+  beforeKey: neighbourKey("The card below"),
+});
+
 export type CreateTaskInput = z.infer<typeof createTaskSchema>;
 export type UpdateTaskInput = z.infer<typeof updateTaskSchema>;
 export type ListTasksQuery = z.infer<typeof listTasksQuerySchema>;
+export type BoardQuery = z.infer<typeof boardQuerySchema>;
+export type MoveTaskInput = z.infer<typeof moveTaskSchema>;

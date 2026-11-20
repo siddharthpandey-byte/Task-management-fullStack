@@ -1,0 +1,27 @@
+.loading {
+  display: grid;
+  place-items: center;
+  min-height: 320px;
+}
+
+/* previous board stays visible while a refetch (e.g. new filter) is in flight */
+.refreshing {
+  opacity: 0.7;
+  transition: opacity 120ms ease;
+}
+
+.inlineLink {
+  padding: 0;
+  font: inherit;
+  font-weight: 500;
+  color: var(--color-primary);
+  background: none;
+  border: none;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.noticeLink {
+  font-weight: 600;
+  text-decoration: underline;
+}

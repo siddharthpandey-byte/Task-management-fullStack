@@ -86,6 +86,10 @@ const taskSchema = new Schema(
     },
     // when the task last moved to "done"; cleared if it is reopened
     completedAt: { type: Date, default: null },
+    // Project-wide manual order (fractional index, compared byte-wise; see rank.service).
+    // A board column is the tasks of one status sorted by rank. Not required so tasks
+    // created before ranking existed still save; they sort first and get a rank on rebalance.
+    rank: { type: String, maxlength: 128 },
   },
   {
     timestamps: true,
@@ -95,6 +99,7 @@ const taskSchema = new Schema(
         ret.id = String(ret._id);
         delete ret._id;
         delete ret.priorityRank;
+        delete ret.rank;
         return ret;
       },
     },
@@ -109,6 +114,9 @@ taskSchema.index({ project: 1, number: 1 }, { unique: true });
 taskSchema.index({ project: 1, status: 1, updatedAt: -1 });
 taskSchema.index({ assignee: 1, status: 1 });
 taskSchema.index({ project: 1, dueDate: 1 });
+// board columns: one project's tasks of one status in rank order
+taskSchema.index({ project: 1, status: 1, rank: 1, number: 1 });
+taskSchema.index({ project: 1, rank: -1 });
 
 export type Task = InferSchemaType<typeof taskSchema>;
 export type TaskDocument = HydratedDocument<Task>;

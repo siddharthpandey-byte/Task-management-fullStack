@@ -11,7 +11,8 @@
     "format": "prettier --write src",
     "test": "vitest run",
     "test:watch": "vitest",
-    "seed:admin": "tsx src/scripts/seedAdmin.ts"
+    "seed:admin": "tsx src/scripts/seedAdmin.ts",
+    "migrate:task-ranks": "tsx src/scripts/backfillTaskRanks.ts"
   },
   "keywords": [],
   "author": "",
@@ -23,6 +24,7 @@
     "dotenv": "^18.0.9",
     "express": "^5.3.0",
     "express-rate-limit": "^8.7.3",
+    "fractional-indexing": "^3.2.0",
     "helmet": "^8.3.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.11.4",

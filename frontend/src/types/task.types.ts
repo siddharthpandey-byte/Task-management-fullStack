@@ -74,3 +74,31 @@ export interface CreateTaskInput {
 }
 
 export type UpdateTaskInput = Partial<CreateTaskInput>;
+
+// --- board -------------------------------------------------------------------
+
+// the board shows every status in rank order, so it takes only the narrowing filters
+export type BoardQuery = Pick<TaskListQuery, "search" | "priority" | "type" | "assignee" | "due">;
+
+export interface BoardColumn {
+  status: TaskStatus;
+  // every matching task in this status; `tasks` is capped at BoardData.columnLimit
+  total: number;
+  tasks: Task[];
+}
+
+// Mirrors backend taskService.getBoard
+export interface BoardData {
+  project: Pick<TaskProjectRef, "key" | "name" | "status">;
+  // whether the caller may move cards (project member or admin, project active)
+  canEdit: boolean;
+  columnLimit: number;
+  columns: BoardColumn[];
+}
+
+// neighbours as shown on the board: the card directly above and directly below
+export interface MoveTaskInput {
+  status: TaskStatus;
+  afterKey?: string | null;
+  beforeKey?: string | null;
+}

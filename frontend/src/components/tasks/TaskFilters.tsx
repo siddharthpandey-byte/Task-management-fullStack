@@ -36,6 +36,8 @@ interface TaskFiltersProps {
   activeCount: number;
   // cross-project list only
   projectChoices?: ProjectChoice[];
+  // the board shows every status as a column, so it hides this filter
+  showStatus?: boolean;
 }
 
 export function TaskFilters({
@@ -46,6 +48,7 @@ export function TaskFilters({
   onClear,
   activeCount,
   projectChoices,
+  showStatus = true,
 }: TaskFiltersProps) {
   const set = (changes: Parameters<typeof onChange>[0]) => onChange({ ...changes, page: 1 });
 
@@ -73,12 +76,14 @@ export function TaskFilters({
           onChange={(selected) => set({ project: selected[0] ?? "" })}
         />
       )}
-      <FilterMenu
-        label="Status"
-        options={opts(TASK_STATUSES, TASK_STATUS_LABELS)}
-        selected={query.status}
-        onChange={(status) => set({ status })}
-      />
+      {showStatus && (
+        <FilterMenu
+          label="Status"
+          options={opts(TASK_STATUSES, TASK_STATUS_LABELS)}
+          selected={query.status}
+          onChange={(status) => set({ status })}
+        />
+      )}
       <FilterMenu
         label="Assignee"
         single

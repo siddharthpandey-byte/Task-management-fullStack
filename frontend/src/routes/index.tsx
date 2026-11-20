@@ -10,10 +10,12 @@ import { ProtectedRoute } from "./guards/ProtectedRoute";
 import { RoleRoute } from "./guards/RoleRoute";
 import {
   AdminPage,
+  BoardHomePage,
   DashboardPage,
   ForgotPasswordPage,
   LoginPage,
   NotFoundPage,
+  ProjectBoardPage,
   ProjectSettingsPage,
   ProjectsPage,
   ProjectTasksPage,
@@ -65,6 +67,8 @@ export const router = createBrowserRouter([
               // visibility is enforced by the API (404 for projects you can't see)
               { path: ROUTES.PROJECT_SETTINGS, element: <ProjectSettingsPage /> },
               { path: ROUTES.PROJECT_TASKS, element: <ProjectTasksPage /> },
+              { path: ROUTES.PROJECT_BOARD, element: <ProjectBoardPage /> },
+              { path: ROUTES.BOARD, element: <BoardHomePage /> },
               { path: ROUTES.TASKS, element: <TasksPage /> },
               { path: ROUTES.TASK_DETAIL, element: <TaskDetailPage /> },
               {

@@ -10,6 +10,7 @@ import {
 } from "../controllers/project.controller.js";
 import {
   createTask,
+  getBoard,
   listProjectTasks,
 } from "../controllers/task.controller.js";
 import { authenticate, authorize } from "../middlewares/auth.js";
@@ -36,5 +37,6 @@ router.post("/:key/restore", canWrite, restoreProject);
 // any project member can create tasks (checked in the task service)
 router.get("/:key/tasks", listProjectTasks);
 router.post("/:key/tasks", validate(createTaskSchema), createTask);
+router.get("/:key/board", getBoard);
 
 export default router;
